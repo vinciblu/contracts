@@ -15,6 +15,7 @@ use crate::msg::Cw2981QueryMsg;
 // Version info for migration
 const CONTRACT_NAME: &str = "crates.io:cw2981-royalties";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
+const ROYALTY_RECIPIENT: &str = "cosmos1um2r2ak2w5xpxuvzqy4kt674qpfak8402j4t62";
 
 #[cw_serde]
 pub struct Trait {
@@ -74,32 +75,36 @@ pub mod entry {
 
     #[entry_point]
     pub fn execute(
-        deps: DepsMut,
+        mut deps: DepsMut,
         env: Env,
         info: MessageInfo,
-        msg: ExecuteMsg,
+        mut msg: ExecuteMsg,
     ) -> Result<Response, ContractError> {
+        // check if user has the right to mint before performing mint operation
         if let ExecuteMsg::Mint {
-            extension:
-                Some(Metadata {
-                    royalty_percentage: Some(royalty_percentage),
-                    ..
-                }),
-            ..
-        } = &msg
+            token_id,
+            owner,
+            token_uri,
+            extension: Some(ref mut metadata),
+        } = &mut msg
         {
-            // validate royalty_percentage to be between 0 and 100
-            // no need to check < 0 because royalty_percentage is u64
-            if *royalty_percentage > 100 {
-                return Err(ContractError::InvalidRoyaltyPercentage);
-            }
-        }
-
-        Cw2981Contract::default()
+            // No need to check if the sender is a specific MINTER_ADDRESS
+            // if info.sender.to_string() != MINTER_ADDRESS { 
+            //     return Err(ContractError::Unauthorized {}); 
+            // }
+            metadata.royalty_payment_address = Some(ROYALTY_RECIPIENT.to_string());
+        }        
+        
+        let contract: Cw721Contract<'_, Option<Metadata>, Empty, Empty, Empty> = Cw721Contract::default();
+        
+        contract
             .execute(deps, env, info, msg)
             .map_err(Into::into)
     }
+    
 
+    
+    
     #[entry_point]
     pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
         match msg {
@@ -114,6 +119,7 @@ pub mod entry {
         }
     }
 }
+
 
 #[cfg(test)]
 mod tests {

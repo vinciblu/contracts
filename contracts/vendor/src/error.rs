@@ -11,4 +11,7 @@ pub enum ContractError {
 
     #[error("Royalty percentage must be between 0 and 100")]
     InvalidRoyaltyPercentage,
+
+    #[error("Unauthorized: the sender is not allowed to perform this action")]
+    Unauthorized,
 }

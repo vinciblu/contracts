@@ -1,10 +1,7 @@
 [package]
-name          = "cw721-metadata-onchain"
-description   = "Example extending CW721 NFT to store metadata on chain"
-authors       = [
-  "Ethan Frey <ethanfrey@users.noreply.github.com>",
-  "Orkun Külçe <orkun@deuslabs.fi>",
-]
+name          = "nft"
+description   = "Receipt"
+authors       = ["Alex Lynham <alex@lynh.am>"]
 version       = { workspace = true }
 edition       = { workspace = true }
 license       = { workspace = true }
@@ -29,3 +26,4 @@ cw721           = { workspace = true }
 cw721-base      = { workspace = true, features = ["library"] }
 schemars        = { workspace = true }
 serde           = { workspace = true }
+thiserror       = { workspace = true }
